@@ -161,6 +161,68 @@
             color: #FFD700;
             font-family: 'Courier New', monospace;
         }
+
+        /* Modal personalizado */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            overflow: auto;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1435 0%, #2a1b3d 100%);
+            padding: 30px;
+            border: 2px solid rgba(255, 100, 100, 0.5);
+            border-radius: 15px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(255, 100, 100, 0.3);
+        }
+
+        .modal-header {
+            font-size: 1.5em;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-body {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            color: #fff;
+        }
+
+        .modal-close {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 20px;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .modal-close:hover {
+            background: #ff5252;
+        }
     </style>
 </head>
 <body>
@@ -186,6 +248,15 @@
             <strong>⚠️ Security Notice</strong>
             This is a security research PoC. When you click, the game attempts to read
             data from <code>plus.nasa.gov</code> to demonstrate a CORS vulnerability.
+        </div>
+    </div>
+
+    <!-- Modal personalizado -->
+    <div id="corsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader"></div>
+            <div class="modal-body" id="modalBody"></div>
+            <button class="modal-close" onclick="closeModal()">Close</button>
         </div>
     </div>
 
@@ -265,10 +336,7 @@
         }
 
         function showDemoAlert(errorData) {
-            const message = `
-🔴 CORS VULNERABILITY DEMONSTRATION
-
-Endpoint: https://plus.nasa.gov/wp-json/wp/v2/settings
+            const message = `Endpoint: https://plus.nasa.gov/wp-json/wp/v2/settings
 
 What I can read (even with 401 error):
 ${JSON.stringify(errorData, null, 2)}
@@ -292,33 +360,40 @@ while your data is sent to a server I control.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-This alert is only shown for demonstration purposes.
-In a real attack, there would be no alert.
-            `.trim();
+This is only shown for demonstration purposes.
+In a real attack, there would be no notification.`;
             
-            alert(message);
+            showModal('🔴 CORS VULNERABILITY DEMONSTRATION', message);
         }
 
         function showSuccessAlert(data) {
-            const message = `
-🎯 AUTHENTICATION DETECTED!
+            const message = `You are logged in to plus.nasa.gov!
 
-You are logged in to plus.nasa.gov, so I can read your data:
+I can read your complete data:
 
-${JSON.stringify(data, null, 2).substring(0, 500)}...
+${JSON.stringify(data, null, 2)}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ⚠️ In a real attack, this data would be:
 1. Sent to an attacker's server
-2. Completely silent (no alert)
-3. Stolen while you play
+2. Completely silent (no notification)
+3. Stolen while you play the game
 4. You would never know it was stolen
 
-This demonstrates the full impact of the CORS vulnerability.
-            `.trim();
+This demonstrates the full impact of the CORS vulnerability.`;
             
-            alert(message);
+            showModal('🎯 AUTHENTICATION DETECTED!', message);
+        }
+
+        function showModal(title, content) {
+            document.getElementById('modalHeader').textContent = title;
+            document.getElementById('modalBody').textContent = content;
+            document.getElementById('corsModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('corsModal').classList.remove('show');
         }
 
         // Auto-load saved data
